@@ -8,10 +8,23 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParsor());
 
-var urlDatabase = {
+let urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+const users = {
+  "vanillaice": {
+    id: "vanillaice",
+    email: "vanilla@ice.com",
+    password: "ice-ice-baby"
+  },
+ "andre-3000": {
+    id: "andre-3000",
+    email: "andre@outkast.com",
+    password: "sorrymrsjackson"
+  }
+}
 
 app.get("/", (req, res) => {
   let templateVars = {
