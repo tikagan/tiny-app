@@ -4,10 +4,12 @@
   <title>TinyApp</title>
 </head>
 <body>
-<% include('partials/_header') %>
+<%- include('partials/_header') %>
 
-      <h1> <%= urls[shortURL] %> : <%= shortURL %> </h1>
+      <h1> Here is your shortened link: <a href=<%- 'http://localhost:8080/u/' + shortURL %>> <%- 'localhost:8080/u/' + shortURL %> </a> </h1>
+      <h2> <%= urls[shortURL] %> : <%= shortURL %> </h2>
 
   <a href='/urls/new' > Shorten another link! </a>
+  <a href='/urls/'> See all your shortened URLs! </a>
 </body>
 </html>

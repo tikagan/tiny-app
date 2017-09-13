@@ -5,9 +5,17 @@
 </head>
 <body>
   <%- include('partials/_header') %>
-  <ul>
-      <li> <%= urls %></li>
-  </ul>
+
+  <% Object.keys(urls).forEach(function (key) { %>
+
+    <form method="POST" action= "<%= `/urls/${key}/delete` %>">
+      <h4>
+        <button name = delete>DELETE</button>
+        <%= key %> : <%= urls[key] %>
+      </h4>
+    </form>
+  <% }) %>
+
 
   <a href='/urls/new'> Shorten another link! </a>
 </body>
