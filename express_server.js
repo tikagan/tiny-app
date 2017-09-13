@@ -20,6 +20,10 @@ app.get("/", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
+app.get("/register", (req, res) => {
+  res.render("register");
+})
+
 app.get("/urls.json", (req, res) => {
   let templateVars = {
     username: req.cookies["username"]
