@@ -109,8 +109,16 @@ app.post("/urls/", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie(Object.keys(req.body)[0], req.body.user_id);
-  res.redirect("/urls");
+  for (user_id in users) {
+    if (users[user_id].email === req.body.email) {
+      if (users[user_id].password === req.body.password) {
+        res.cookie("user_id", user_id);
+        res.redirect("/");
+        return
+      }
+    }
+  }
+  res.status(403).send("Forbidden: incorrect email and/or password.")
 });
 
 app.post("/logout", (req, res) => {
