@@ -75,6 +75,14 @@ app.get("/u/:shortURL", (req, res) => {
 
 app.post("/register", (req, res) => {
   let user_id = generateRandomString()
+  if (req.body.username === "" || req.body.email === "" || req.body.password === "") {
+    res.status(400).send("Bad Request: please fill out all the fields.")
+  }
+  for (user_id in users) {
+    if (users[user_id].email === req.body.email) {
+      res.status(400).send("Bad Request: that email is already registered to a user.")
+    }
+  }
   users[user_id] = {id: req.body.username, email: req.body.email, password: req.body.password};
   res.cookie("user_id", user_id);
   res.redirect("/urls");
