@@ -103,13 +103,22 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
-  res.redirect("/urls/");
+  if (urlDatabase[req.params.id].user_id === req.cookies["user_id"]) {
+    delete urlDatabase[req.params.id];
+    res.redirect("/urls/");
+  };
+  res.status(403).send("Forbidden: please login to continue.");
 });
 
 app.post("/urls/:id/edit", (req, res) => {
-  urlDatabase[req.params.id].longURL =req.body.longURL;
-  res.redirect("/urls/");
+  console.log(req.cookies["user_id"])
+  console.log(req.params.id)
+  if (urlDatabase[req.params.id].user_id === req.cookies["user_id"]) {
+    urlDatabase[req.params.id].longURL =req.body.longURL;
+    res.redirect("/urls/")
+    return
+  };
+  res.status(403).send("Forbidden: please login to continue.");
 });
 
 app.post("/urls/", (req, res) => {
