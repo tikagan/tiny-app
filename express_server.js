@@ -32,14 +32,6 @@ const users = {
   }
 };
 
-app.get("/", (req, res) => {
-  let templateVars = {
-    user_id: req.cookies["user_id"],
-    "users": users
-  };
-  res.redirect("/urls/new");
-});
-
 app.get("/login", (req, res) => {
   res.render("login");
 });
@@ -56,7 +48,13 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let templateVars = {urls: urlDatabase, user_id: req.cookies["user_id"], "users": users};
+   if (!req.cookies.user_id) {
+    res.redirect("/login");
+    return
+  }
+  let id = req.cookies["user_id"]
+  userURLs = urlsForUser(id);
+  let templateVars = {urls: userURLs, user_id: req.cookies["user_id"], "users": users};
   res.render("urls_index", templateVars);
 });
 
@@ -73,8 +71,14 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  let templateVars = {urls: urlDatabase, shortURL: req.params.id, user_id: req.cookies["user_id"], "users": users};
-  res.render("urls_show", templateVars);
+  let id = req.cookies["user_id"];
+  userURLs = urlsForUser(id);
+  if (userURLs[req.params.id]) {
+    let templateVars = {urls: userURLs, shortURL: req.params.id, "user_id": id, "users": users};
+    res.render("urls_show", templateVars);
+    return
+  }
+  res.render("urls_new");
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -82,9 +86,17 @@ app.get("/u/:shortURL", (req, res) => {
     if (urlDatabase[req.params.shortURL]){
       longURL = urlDatabase[req.params.shortURL];
     } else {
-      res.end("<html><body>That's not a valid short URL.</body></html>\n");
+      res.end("<html><body>That's not a valid short URL.</body></html>");
     }
   res.redirect(longURL);
+});
+
+app.get("/", (req, res) => {
+  let templateVars = {
+    user_id: req.cookies["user_id"],
+    "users": users
+  };
+  res.redirect("/urls/new");
 });
 
 app.post("/register", (req, res) => {
@@ -111,8 +123,6 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/urls/:id/edit", (req, res) => {
-  console.log(req.cookies["user_id"])
-  console.log(req.params.id)
   if (urlDatabase[req.params.id].user_id === req.cookies["user_id"]) {
     urlDatabase[req.params.id].longURL =req.body.longURL;
     res.redirect("/urls/")
@@ -150,6 +160,16 @@ app.post("/logout", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+function urlsForUser(id){
+  let userURLs = {}
+  for (shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].user_id === id) {
+      userURLs[shortURL] = urlDatabase[shortURL]
+    }
+  }
+  return userURLs;
+}
 
 function generateRandomString () {
   let string = '';
