@@ -9,10 +9,15 @@
     <button type="submit" >Logout</button>
   </form>
 <% } else { %>
-  <form method="POST" action="/login" style="margin:50px">
-    <label for="user_id">Login:</label>
-    <input id="user_id" type="text" name="user_id" style="width:75px">
-    <input type="submit" value="Login">
+  <h4> Been here before? </h4>
+  <form method="GET" action="/login" style="margin:20px">
+    <label for="login">Login</label>
+    <input type="submit" value="login">
+  </form>
+  <h4> Set up a new account! </h4>
+  <form method="GET" action="/register" style="margin:20px">
+    <label for="register">Register</label>
+    <input type="submit" value="register">
   </form>
 <% } %>
 

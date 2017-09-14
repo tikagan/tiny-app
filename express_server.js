@@ -24,7 +24,7 @@ const users = {
     email: "andre@outkast.com",
     password: "sorrymrsjackson"
   }
-}
+};
 
 app.get("/", (req, res) => {
   let templateVars = {
@@ -34,9 +34,13 @@ app.get("/", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
+app.get("/login", (req, res) => {
+  res.render("login");
+});
+
 app.get("/register", (req, res) => {
   res.render("register");
-})
+});
 
 app.get("/urls.json", (req, res) => {
   let templateVars = {
@@ -107,7 +111,7 @@ app.post("/urls/", (req, res) => {
 app.post("/login", (req, res) => {
   res.cookie(Object.keys(req.body)[0], req.body.user_id);
   res.redirect("/urls");
-})
+});
 
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
@@ -125,4 +129,4 @@ function generateRandomString () {
     string += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return string;
-}
+};
