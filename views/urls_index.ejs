@@ -11,8 +11,9 @@
     <form method="POST" action= "<%= `/urls/${shortURL}/delete` %>" >
       <h4>
         <button name = delete>DELETE</button>
-        <%= shortURL %> : <%= urls[shortURL].longURL %>
         <a href= "<%= `/urls/${shortURL}` %>" > Edit </a>
+        <%= shortURL %> : <%= urls[shortURL].longURL %>  <a href=<%- 'http://localhost:8080/u/' + shortURL %>> <%- 'localhost:8080/u/' + shortURL %> </a>
+    </h4>
       </h4>
     </form>
   <% }) %>

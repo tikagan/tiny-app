@@ -6,7 +6,7 @@
 <body>
 <%- include('partials/_header') %>
 
-  <form action="<%= `/urls/${shortURL}/edit` %>" method="POST" style="margin:150px;">
+  <form action="<%= `/urls/${shortURL}` %>" method="POST" style="margin:150px;">
     <h4> Here is your shortened link to <%= urls[shortURL].longURL %> :
     <a href=<%- 'http://localhost:8080/u/' + shortURL %>> <%- 'localhost:8080/u/' + shortURL %> </a>
     </h4>
