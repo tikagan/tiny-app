@@ -19,24 +19,32 @@ let urlDatabase = {};
 const users = {};
 
 app.get("/login", (req, res) => {
-  isLoggedIn(req.session.user_id, "/urls", res);
-  res.render("login");
+  if (req.session.user_id) {
+    res.redirect("/urls");
+    return;
+  } else {
+    res.render("login");
+  }
 });
 
 app.get("/register", (req, res) => {
-  isLoggedIn(req.session.user_id, "/urls", res);
-  res.render("register");
+  if (req.session.user_id){
+    res.redirect("/urls");
+    return;
+  } else {
+    res.render("register");
+  }
 });
 
-// app.get("/urls.json", (req, res) => {
-//   let templateVars = {
-//     user_id: req.session.user_id
-//   };
-//   res.json(urlDatabase, templateVars);
-// });
+app.get("/urls.json", (req, res) => {
+  let templateVars = {
+    user_id: req.session.user_id
+  };
+  res.json(urlDatabase, templateVars);
+});
 
 app.get("/urls", (req, res) => {
-  isLoggedIn(req.session.user_id, "/login", res);
+  isLoggedIn(req.session.user_id, "/urls/new", res);
   //creates filtered url database using cookie stored user_id
   userURLs = urlsForUser(req.session.user_id);
   let templateVars = {urls: userURLs, user_id: req.session.user_id, "users": users};
@@ -62,7 +70,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  isLoggedIn(req.session.user_id, "/login", res);
+  isLoggedIn(req.session.user_id, "/urls/new", res);
   //checks if requested shortURL (req.session.user_id) exsists
   if (urlDatabase[req.params.id]) {
     //checks if that that shortURL is assigned to the user that requested it
@@ -75,24 +83,25 @@ app.get("/urls/:id", (req, res) => {
          res.status(403).send("Forbidden: that's not your shortened URL.");
       }
   } else {
-    res.status(404).send("Not Found: that's not a shortened URL.");
+    res.status(404).send("Not Found: that's not a valid shortened URL.");
   }
 });
 
 app.get("/u/:id", (req, res) => {
   let longURL;
   //checks that requested shortened URL exists in the database
-    if (urlDatabase[req.params.shortURL]){
-      longURL = urlDatabase[req.params.shortURL];
+    if (urlDatabase[req.params.id]){
+      longURL = urlDatabase[req.params.id].longURL;
+      res.redirect(longURL);
+      return;
     } else {
       //if not returns error message
-      res.end("<html><body><h3>That's not a valid short URL.<h3></body></html>");
+      // console.log("longURL: ", urlDatabase[req.params.shortURL].longURL);
+      res.status(404).send("Not Found: that's not a valid shortened URL.");
     }
-  res.redirect(longURL);
 });
 
 app.get("/", (req, res) => {
-  isLoggedIn(req.session.user_id, "/urls", res);
   res.redirect("/urls/new");
 });
 
@@ -118,7 +127,7 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/urls/:id/delete", (req, res) => {
-  isLoggedIn(req.session.user_id, "/login", res);
+  isLoggedIn(req.session.user_id, "/urls/new", res);
   //checks if the url being requested belongs to the user requesting
   if (urlDatabase[req.params.id].user_id === req.session.user_id) {
       delete urlDatabase[req.params.id];
@@ -127,7 +136,7 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/urls/:id", (req, res) => {
-  isLoggedIn(req.session.user_id, "/login", res);
+  isLoggedIn(req.session.user_id, "/urls/new", res);
   //checks if the url being requested belongs to the user requesting
   if (urlDatabase[req.params.id].user_id === req.session.user_id) {
     urlDatabase[req.params.id].longURL = req.body.longURL;
@@ -136,26 +145,25 @@ app.post("/urls/:id", (req, res) => {
   } else {
     res.status(403).send("Forbidden: that's not your short URL.");
   }
-  res.status(403).send("Forbidden: please login to continue.");
 });
 
 app.post("/urls/", (req, res) => {
-  if (req.session.user_id) {
-    let shortURL = generateRandomString();
-    //creates short url key in urlDatabase
-    urlDatabase[shortURL] = {}
-    //creates and assigns a longURL key and value to it
-    urlDatabase[shortURL].longURL = req.body.longURL;
-    //creates and assign a user_id to it
-    urlDatabase[shortURL].user_id = req.session.user_id;
-    res.redirect("/urls/" + shortURL);
-  } else {
-    res.redirect("/login");
-  }
+  isLoggedIn(req.session.user_id, "/urls/new", res);
+  let shortURL = generateRandomString();
+  //creates short url key in urlDatabase
+  urlDatabase[shortURL] = {}
+  //creates and assigns a longURL key and value to it
+  urlDatabase[shortURL].longURL = req.body.longURL;
+  //creates and assign a user_id to it
+  urlDatabase[shortURL].user_id = req.session.user_id;
+  res.redirect("/urls/" + shortURL);
 });
 
 app.post("/login", (req, res) => {
-  isLoggedIn(req.session.user_id, "/urls", res);
+  if (req.session.user_id) {
+    res.redirect("/urls");
+    return;
+  }
   for (user_id in users) {
     //checks if the submitted email belongs to a user in the users database
     if (users[user_id].email === req.body.email) {
@@ -194,10 +202,8 @@ function urlsForUser(id){
 function isLoggedIn (user_id, redirect, res) {
   if (!user_id) {
     res.redirect(redirect);
-  } else {
-    res.redirect(redirect);
   }
-  return;
+  return
 };
 
 //generates 6 character long strings to be used for shortened URLs and user_id
